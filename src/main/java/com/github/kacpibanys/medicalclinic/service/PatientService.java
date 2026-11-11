@@ -21,7 +21,7 @@ public class PatientService {
     public void addPatient(Patient patient) {
         Optional<Patient> existingPatient = patientRepository.findByEmail(patient.getEmail());
         if (existingPatient.isPresent()) {
-            throw new PatientAlreadyExistsException("Pacjent z adresem " + patient.getEmail() + " już istnieje!");
+            throw new PatientAlreadyExistsException("Patient with adress: " + patient.getEmail() + " already exists!");
         }
 
         patientRepository.save(patient);
