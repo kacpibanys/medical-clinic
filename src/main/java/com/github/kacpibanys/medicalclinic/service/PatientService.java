@@ -14,16 +14,30 @@ import java.util.Optional;
 public class PatientService {
     private final PatientRepository patientRepository;
 
-    public List<Patient> getAllPatients() {
+    public List<Patient> getAll() {
         return patientRepository.findAll();
     }
 
-    public void addPatient(Patient patient) {
-        Optional<Patient> existingPatient = patientRepository.findByEmail(patient.getEmail());
-        if (existingPatient.isPresent()) {
+    public Optional<Patient> findByEmail(String email){
+        return patientRepository.findByEmail(email);
+    }
+
+    public Patient add(Patient patient) {
+        if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
             throw new PatientAlreadyExistsException("Patient with adress: " + patient.getEmail() + " already exists!");
         }
-
-        patientRepository.save(patient);
+        return patientRepository.save(patient);
     }
+
+    public Optional<Patient> update(String email, Patient changes) {
+        return patientRepository.findByEmail(email).map(existing -> {
+            existing.setFirstName(changes.getFirstName());
+            existing.setLastName(changes.getLastName());
+            existing.setPhoneNumber(changes.getPhoneNumber());
+            existing.setBirthday(changes.getBirthday());
+            return patientRepository.save(existing);
+        });
+    }
+
+    public void delete(String email) {patientRepository.deleteByEmail(email);}
 }
