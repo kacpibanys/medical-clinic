@@ -6,6 +6,7 @@ import com.github.kacpibanys.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,13 @@ public class PatientService {
             existing.setLastName(changes.getLastName());
             existing.setPhoneNumber(changes.getPhoneNumber());
             existing.setBirthday(changes.getBirthday());
+            return patientRepository.save(existing);
+        });
+    }
+
+    public Optional<Patient> changePassword(String email, String password) {
+        return patientRepository.findByEmail(email).map(existing -> {
+            existing.setPassword(password);
             return patientRepository.save(existing);
         });
     }
