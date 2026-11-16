@@ -1,6 +1,8 @@
 package com.github.kacpibanys.medicalclinic.model;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -12,11 +14,16 @@ public class Patient {
     private String password;
     @ToString.Exclude
     private String idCardNo;
+    @Setter
     private String firstName;
+    @Setter
     private String lastName;
+    @Setter
     private String phoneNumber;
+    @Setter
     private LocalDate birthday;
 
+    @Builder
     public Patient(String email, String password, String idCardNo, String firstName, String lastName, String phoneNumber, LocalDate birthday) {
         requireValidPassword(password);
         this.email = email;

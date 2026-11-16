@@ -5,6 +5,7 @@ import com.github.kacpibanys.medicalclinic.dto.PatientCreateCommand;
 import com.github.kacpibanys.medicalclinic.dto.PatientDto;
 import com.github.kacpibanys.medicalclinic.dto.PatientUpdateCommand;
 import com.github.kacpibanys.medicalclinic.exception.PatientAlreadyExistsException;
+import com.github.kacpibanys.medicalclinic.mapper.PatientMapper;
 import com.github.kacpibanys.medicalclinic.model.Patient;
 import com.github.kacpibanys.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
 
     public List<PatientDto> getAll() {
         return patientRepository.findAll().stream()
@@ -30,24 +32,13 @@ public class PatientService {
     }
 
     public PatientDto add(PatientCreateCommand patientCreateCommand) {
-        Patient patient = new Patient(
-                patientCreateCommand.email(),
-                patientCreateCommand.password(),
-                patientCreateCommand.idCardNo(),
-                patientCreateCommand.firstName(),
-                patientCreateCommand.lastName(),
-                patientCreateCommand.phoneNumber(),
-                patientCreateCommand.birthday()
-        );
+        Patient patient = patientMapper.toEntity(patientCreateCommand);
         return toDto(patientRepository.save(patient));
     }
 
     public Optional<PatientDto> update(String email, PatientUpdateCommand patientUpdateCommand) {
         return patientRepository.findByEmail(email).map(existing -> {
-            existing.setFirstName(patientUpdateCommand.firstName());
-            existing.setLastName(patientUpdateCommand.lastName());
-            existing.setPhoneNumber(patientUpdateCommand.phoneNumber());
-            existing.setBirthday(patientUpdateCommand.birthday());
+            patientMapper.update(patientUpdateCommand, existing);
             return toDto(patientRepository.save(existing));
         });
     }
