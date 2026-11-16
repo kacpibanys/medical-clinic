@@ -6,6 +6,7 @@ import com.github.kacpibanys.medicalclinic.dto.PatientDto;
 import com.github.kacpibanys.medicalclinic.dto.PatientUpdateCommand;
 import com.github.kacpibanys.medicalclinic.model.Patient;
 import com.github.kacpibanys.medicalclinic.service.PatientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +35,13 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientDto> add(@RequestBody PatientCreateCommand patientCreateCommand) {
+    public ResponseEntity<PatientDto> add(@Valid @RequestBody PatientCreateCommand patientCreateCommand) {
         PatientDto saved = patientService.add(patientCreateCommand);
         return ResponseEntity.created(URI.create("/patients/" + saved.email())).body(saved);
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<PatientDto> update(@PathVariable String email, @RequestBody PatientUpdateCommand patientUpdateCommand) {
+    public ResponseEntity<PatientDto> update(@PathVariable String email, @Valid @RequestBody PatientUpdateCommand patientUpdateCommand) {
         return patientService.update(email, patientUpdateCommand)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -48,7 +49,7 @@ public class PatientController {
 
     @PatchMapping("/{email}/password")
     public ResponseEntity<PatientDto> changePassword(@PathVariable String email,
-                                            @RequestBody PasswordChangeCommand passwordChangeCommand) {
+                                                     @Valid @RequestBody PasswordChangeCommand passwordChangeCommand) {
         return patientService.changePassword(email, passwordChangeCommand)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
