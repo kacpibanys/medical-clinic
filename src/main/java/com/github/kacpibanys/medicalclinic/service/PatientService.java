@@ -4,14 +4,14 @@ import com.github.kacpibanys.medicalclinic.dto.PasswordChangeCommand;
 import com.github.kacpibanys.medicalclinic.dto.PatientCreateCommand;
 import com.github.kacpibanys.medicalclinic.dto.PatientDto;
 import com.github.kacpibanys.medicalclinic.dto.PatientUpdateCommand;
-import com.github.kacpibanys.medicalclinic.exception.PatientAlreadyExistsException;
+import com.github.kacpibanys.medicalclinic.exception.ClinicError;
+import com.github.kacpibanys.medicalclinic.exception.ClinicException;
 import com.github.kacpibanys.medicalclinic.mapper.PatientMapper;
 import com.github.kacpibanys.medicalclinic.model.Patient;
 import com.github.kacpibanys.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,34 +23,40 @@ public class PatientService {
 
     public List<PatientDto> getAll() {
         return patientRepository.findAll().stream()
-                .map(this::toDto)
+                .map(patientMapper::toDto)
                 .toList();
     }
 
-    public Optional<PatientDto> findByEmail(String email){
-        return patientRepository.findByEmail(email).map(this::toDto);
+    public PatientDto findByEmail(String email){
+        return patientMapper.toDto(findPatient(email));
     }
 
     public PatientDto add(PatientCreateCommand patientCreateCommand) {
+        if (patientRepository.findByEmail(patientCreateCommand.email()).isPresent()) {
+            throw new ClinicException(ClinicError.EMAIL_TAKEN, "Patient with this email already exists");
+        }
         Patient patient = patientMapper.toEntity(patientCreateCommand);
-        return toDto(patientRepository.save(patient));
+        return patientMapper.toDto(patientRepository.save(patient));
     }
 
-    public Optional<PatientDto> update(String email, PatientUpdateCommand patientUpdateCommand) {
-        return patientRepository.findByEmail(email).map(existing -> {
-            patientMapper.update(patientUpdateCommand, existing);
-            return toDto(patientRepository.save(existing));
-        });
+    public PatientDto update(String email, PatientUpdateCommand patientUpdateCommand) {
+        Patient existing = findPatient(email);
+        patientMapper.update(patientUpdateCommand, existing);
+        return patientMapper.toDto(patientRepository.save(existing));
     }
 
-    public Optional<PatientDto> changePassword(String email, PasswordChangeCommand passwordChangeCommand) {
-        return patientRepository.findByEmail(email).map(existing -> {
-            existing.changePassword(passwordChangeCommand.password()); // Walidacja siedzi w modelu
-            return toDto(patientRepository.save(existing));
-        });
+    public PatientDto changePassword(String email, PasswordChangeCommand passwordChangeCommand) {
+        Patient existing = findPatient(email);
+        existing.changePassword(passwordChangeCommand.password());
+        return patientMapper.toDto(patientRepository.save(existing));
     }
 
     public void delete(String email) {patientRepository.deleteByEmail(email);}
+
+    private Patient findPatient(String email) {
+        return patientRepository.findByEmail(email)
+                .orElseThrow(() -> new ClinicException(ClinicError.PATIENT_NOT_FOUND, "Patient not found"));
+    }
 
     private PatientDto toDto(Patient patient) {
         return new PatientDto(

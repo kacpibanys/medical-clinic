@@ -1,5 +1,7 @@
 package com.github.kacpibanys.medicalclinic.model;
 
+import com.github.kacpibanys.medicalclinic.exception.ClinicError;
+import com.github.kacpibanys.medicalclinic.exception.ClinicException;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Setter;
@@ -42,7 +44,7 @@ public class Patient {
 
     private void requireValidPassword(String password) {
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Passsword cannot be empty");
+            throw new ClinicException(ClinicError.INVALID_PASSWORD, "Password must not be blank");
         }
     }
 }
