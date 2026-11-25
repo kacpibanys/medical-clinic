@@ -2,27 +2,35 @@ package com.github.kacpibanys.medicalclinic.model;
 
 import com.github.kacpibanys.medicalclinic.exception.ClinicError;
 import com.github.kacpibanys.medicalclinic.exception.ClinicException;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
-
-@Data
+@Entity
+@Table(name="patients")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Patient {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
     private String email;
-    @ToString.Exclude
+    @Column(nullable = false)
     private String password;
-    @ToString.Exclude
+    @Column(nullable = false, unique = true)
     private String idCardNo;
     @Setter
+    @Column(nullable = false)
     private String firstName;
     @Setter
+    @Column(nullable = false)
     private String lastName;
     @Setter
+    @Column(nullable = false)
     private String phoneNumber;
     @Setter
+    @Column(nullable = false)
     private LocalDate birthday;
 
     @Builder

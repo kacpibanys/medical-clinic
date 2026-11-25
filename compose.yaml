@@ -1,0 +1,21 @@
+name: medical-clinic
+services:
+  postgres:
+    image: postgres:16
+    container_name: medical-clinic-db
+    environment:
+      POSTGRES_DB: medical_clinic
+      POSTGRES_USER: medical_clinic
+      POSTGRES_PASSWORD: medical_clinic
+    ports:
+      - "5434:5432"
+    volumes:
+      - medical-clinic-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medical_clinic -d medical_clinic"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  medical-clinic-data:

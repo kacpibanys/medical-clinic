@@ -1,0 +1,34 @@
+info:
+  name: hibernate test
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/patients"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "jan.kowalski@example.com",
+        "password": "Password123!",
+        "idCardNo": "ABC123456",
+        "firstName": "Jan",
+        "lastName": "Kowalski",
+        "phoneNumber": "123456789",
+        "birthday": "1995-05-15"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
