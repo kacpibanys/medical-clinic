@@ -1,0 +1,25 @@
+info:
+  name: urwany json
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: POST {{baseUrl}}/patients
+  body:
+    type: json
+    data: '{"email":'
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
